@@ -24,7 +24,7 @@ self.addEventListener('notificationclick', (e) => {
   const userId = payload.userId;
   const launchUrlId = payload.launchUrlId;
 
-  const apiEndpoint = 'http://192.168.1.158:3050/api/pushtokens/updateclick';
+  const apiEndpoint = 'http://localhost:8080:3050/api/pushtokens/updateclick';
   const apiRequestBody = {
     userId: userId,
     hasClicked: true,
