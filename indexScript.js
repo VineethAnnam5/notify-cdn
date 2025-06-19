@@ -66,7 +66,7 @@ async function subscribeUser() {
 }
 
 async function sendSubscriptionToBackend(subscription) {
-  const backendEndpoint = 'http://192.168.1.158:3050/api/pushtokens/saveSubscription';
+  const backendEndpoint = 'http://localhost:8080:3050/api/pushtokens/saveSubscription';
   const dataToSend = {
     endpoint: subscription.endpoint,
     expirationTime: subscription.expirationTime,
