@@ -11,25 +11,58 @@ function urlB64ToUint8Array(base64String) {
   return outputArray;
 }
 
-async function installServiceWorker() {
+// async function installServiceWorkerFromCDN() {
+//   try {
+//     const response = await fetch('http://localhost:8080/cdn/service-worker.js');
+//     const swText = await response.text();
+
+//     const blob = new Blob([swText], { type: 'application/javascript' });
+//     const swUrl = URL.createObjectURL(blob);
+
+//     const registration = await navigator.serviceWorker.register(swUrl);
+//     console.log('✅ Service Worker registered successfully!', registration);
+
+//     Notification.requestPermission().then(permission => {
+//       if (permission === 'granted') {
+//         subscribeUser();
+//       } else {
+//         console.warn('❌ Notification permission denied by user.');
+//       }
+//     }).catch(error => {
+//       console.error('⚠️ Error requesting notification permission:', error);
+//     });
+
+//   } catch (error) {
+//     console.error('❌ Failed to register Service Worker from CDN:', error);
+//   }
+// }
+
+
+async function installServiceWorkerFromCDN() {
   try {
-    const registration = await navigator.serviceWorker.register('/sw.js');
+    // 1. Fetch the service worker code
+    const response = await fetch('http://localhost:8080/cdn/service-worker.js');
+    const swText = await response.text();
+    
+    // 2. Store it in IndexedDB or Cache Storage
+    const cache = await caches.open('sw-cache');
+    await cache.put('service-worker.js', new Response(swText));
+    
+    // 3. Register from cached version
+    const registration = await navigator.serviceWorker.register('/service-worker.js');
+    
     console.log('✅ Service Worker registered successfully!', registration);
-
+    
+    // Rest of your notification code...
     Notification.requestPermission().then(permission => {
-      if (permission === 'granted') {
-        subscribeUser();
-      } else {
-        console.warn('❌ Notification permission denied by user.');
-      }
-    }).catch(error => {
-      console.error('⚠️ Error requesting notification permission:', error);
+      if (permission === 'granted') subscribeUser();
     });
-
+    
   } catch (error) {
     console.error('❌ Failed to register Service Worker:', error);
   }
 }
+
 
 async function subscribeUser() {
   if ('serviceWorker' in navigator && 'PushManager' in window) {
@@ -60,7 +93,7 @@ async function subscribeUser() {
 }
 
 async function sendSubscriptionToBackend(subscription) {
-  const backendEndpoint = 'http://localhost:3050/api/pushtokens/saveSubscription';
+  const backendEndpoint = 'http://192.168.1.158:3050/api/pushtokens/saveSubscription';
   const dataToSend = {
     endpoint: subscription.endpoint,
     expirationTime: subscription.expirationTime,
@@ -106,6 +139,6 @@ async function sendWelcomeNotification() {
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    installServiceWorker();
+    installServiceWorkerFromCDN();
   });
 }
