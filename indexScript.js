@@ -11,15 +11,9 @@ function urlB64ToUint8Array(base64String) {
   return outputArray;
 }
 
-async function installServiceWorkerFromCDN() {
+async function installServiceWorker() {
   try {
-    const response = await fetch('http://localhost:8080/cdn/service-worker.js');
-    const swText = await response.text();
-
-    const blob = new Blob([swText], { type: 'application/javascript' });
-    const swUrl = URL.createObjectURL(blob);
-
-    const registration = await navigator.serviceWorker.register(swUrl);
+    const registration = await navigator.serviceWorker.register('/sw.js');
     console.log('✅ Service Worker registered successfully!', registration);
 
     Notification.requestPermission().then(permission => {
@@ -33,7 +27,7 @@ async function installServiceWorkerFromCDN() {
     });
 
   } catch (error) {
-    console.error('❌ Failed to register Service Worker from CDN:', error);
+    console.error('❌ Failed to register Service Worker:', error);
   }
 }
 
@@ -66,7 +60,7 @@ async function subscribeUser() {
 }
 
 async function sendSubscriptionToBackend(subscription) {
-  const backendEndpoint = 'http://localhost:8080:3050/api/pushtokens/saveSubscription';
+  const backendEndpoint = 'http://localhost:3050/api/pushtokens/saveSubscription';
   const dataToSend = {
     endpoint: subscription.endpoint,
     expirationTime: subscription.expirationTime,
@@ -112,6 +106,6 @@ async function sendWelcomeNotification() {
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    installServiceWorkerFromCDN();
+    installServiceWorker();
   });
 }
