@@ -137,8 +137,31 @@ async function sendWelcomeNotification() {
   }
 }
 
+// if ('serviceWorker' in navigator) {
+//   window.addEventListener('load', () => {
+//     installServiceWorkerFromCDN();
+//   });
+// }
+
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    installServiceWorkerFromCDN();
+    navigator.serviceWorker.register('%PUBLIC_URL%/service-worker.js')
+      .then(registration => {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            subscribeUser();
+          } else {
+            console.warn('Notification permission denied by user (automatic prompt).');
+          }
+        }).catch(error => {
+          console.error('Error requesting notification permission (automatic prompt):', error);
+        });
+
+      })
+      .catch(error => {
+        console.error('Service Worker registration failed:', error);
+      });
   });
 }
+
